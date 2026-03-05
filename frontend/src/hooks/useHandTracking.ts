@@ -17,12 +17,19 @@ const HAND_CONNECTIONS: [number, number][] = [
 
 const INDEX_TIP = 8;
 
+interface NormalizedLandmark {
+  x: number;
+  y: number;
+  z: number;
+}
+
 interface Options {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   landmarksCanvasRef: React.RefObject<HTMLCanvasElement | null>;
   drawingCanvasRef: React.RefObject<HTMLCanvasElement | null>;
   enabled: boolean;
   drawingEnabled: boolean;
+  onLandmarks?: (landmarks: NormalizedLandmark[][]) => void;
 }
 
 export function useHandTracking({
@@ -31,6 +38,7 @@ export function useHandTracking({
   drawingCanvasRef,
   enabled,
   drawingEnabled,
+  onLandmarks,
 }: Options) {
   const landmarkerRef = useRef<HandLandmarker | null>(null);
   const rafRef = useRef(0);
@@ -38,9 +46,11 @@ export function useHandTracking({
   const drawingEnabledRef = useRef(drawingEnabled);
   const enabledRef = useRef(enabled);
   const drawCanvasReadyRef = useRef(false);
+  const onLandmarksRef = useRef(onLandmarks);
 
   drawingEnabledRef.current = drawingEnabled;
   enabledRef.current = enabled;
+  onLandmarksRef.current = onLandmarks;
 
   useEffect(() => {
     let cancelled = false;
@@ -81,6 +91,11 @@ export function useHandTracking({
         const result = landmarker.detectForVideo(video, performance.now());
         const w = video.videoWidth;
         const h = video.videoHeight;
+
+        // --- Emit raw landmarks ---
+        if (onLandmarksRef.current && result.landmarks?.length) {
+          onLandmarksRef.current(result.landmarks as NormalizedLandmark[][]);
+        }
 
         // --- Landmarks canvas ---
         const lmCanvas = landmarksCanvasRef.current;
