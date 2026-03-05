@@ -9,8 +9,8 @@ const STATUS_MAP: Record<WSStatus, { label: string; hint?: string; className: st
   connecting: { label: "Conectando...", className: "status-connecting" },
   disconnected: { label: "Desconectado", className: "status-disconnected" },
   error: {
-    label: "Servidor indisponivel",
-    hint: "Verifique se o backend esta rodando",
+    label: "Indisponivel",
+    hint: "Backend offline",
     className: "status-error",
   },
 };

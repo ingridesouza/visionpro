@@ -23,6 +23,25 @@ export function FeatureToggles({
 }: Props) {
   return (
     <div className="feature-toggles">
+      {(drawingEnabled || librasEnabled) && (
+        <div className="feature-actions">
+          {drawingEnabled && (
+            <button className="feature-action" onClick={onClearDrawing}>
+              Limpar desenho
+            </button>
+          )}
+          {librasEnabled && (
+            <>
+              <button className="feature-action" onClick={onBackspace}>
+                Apagar
+              </button>
+              <button className="feature-action" onClick={onClearText}>
+                Limpar texto
+              </button>
+            </>
+          )}
+        </div>
+      )}
       <div className="feature-toggles-row">
         <button
           className={`feature-toggle ${emotionEnabled ? "active" : ""}`}
@@ -43,25 +62,6 @@ export function FeatureToggles({
           Libras
         </button>
       </div>
-      {(drawingEnabled || librasEnabled) && (
-        <div className="feature-actions">
-          {drawingEnabled && (
-            <button className="feature-action" onClick={onClearDrawing}>
-              Limpar Desenho
-            </button>
-          )}
-          {librasEnabled && (
-            <>
-              <button className="feature-action" onClick={onBackspace}>
-                Apagar
-              </button>
-              <button className="feature-action" onClick={onClearText}>
-                Limpar Texto
-              </button>
-            </>
-          )}
-        </div>
-      )}
     </div>
   );
 }

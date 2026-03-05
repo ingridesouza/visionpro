@@ -17,7 +17,12 @@ export function LibrasOverlay({ currentLetter, confidence, text }: Props) {
       ) : (
         <span className="libras-waiting">Mostre uma letra...</span>
       )}
-      {text && <div className="libras-text">{text}</div>}
+      {text && (
+        <>
+          <span className="libras-separator" />
+          <span className="libras-text">{text}</span>
+        </>
+      )}
     </div>
   );
 }

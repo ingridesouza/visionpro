@@ -7,7 +7,9 @@ interface Props {
 
 export function EmotionOverlay({ result }: Props) {
   if (!result.face_detected || !result.emotion) {
-    return <div className="emotion-overlay no-face">Nenhum rosto detectado</div>;
+    return (
+      <div className="emotion-overlay no-face">Nenhum rosto detectado</div>
+    );
   }
 
   const config = EMOTION_CONFIG[result.emotion] ?? EMOTION_CONFIG.neutral;
@@ -16,7 +18,7 @@ export function EmotionOverlay({ result }: Props) {
     : 0;
 
   return (
-    <div className="emotion-overlay" style={{ borderColor: config.color }}>
+    <div className="emotion-overlay">
       <span className="emotion-emoji">{config.emoji}</span>
       <span className="emotion-label" style={{ color: config.color }}>
         {config.label}
