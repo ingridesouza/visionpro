@@ -3,8 +3,11 @@ import { useCamera } from "../hooks/useCamera";
 import { useWebSocket } from "../hooks/useWebSocket";
 import { useFrameCapture } from "../hooks/useFrameCapture";
 import { useHandTracking } from "../hooks/useHandTracking";
+import { useLibrasRecognition } from "../hooks/useLibrasRecognition";
+import { classifyLibrasLetter } from "../lib/librasClassifier";
 import { EmotionOverlay } from "./EmotionOverlay";
-import { DrawingControls } from "./DrawingControls";
+import { FeatureToggles } from "./FeatureToggles";
+import { LibrasOverlay } from "./LibrasOverlay";
 import { PermissionPrompt } from "./PermissionPrompt";
 import { ConnectionStatus } from "./ConnectionStatus";
 import { WS_URL, CAPTURE_FPS, JPEG_QUALITY } from "../constants/config";
@@ -25,7 +28,13 @@ export function CameraFeed() {
 
   const landmarksCanvasRef = useRef<HTMLCanvasElement>(null);
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  const [emotionEnabled, setEmotionEnabled] = useState(true);
   const [drawingEnabled, setDrawingEnabled] = useState(false);
+  const [librasEnabled, setLibrasEnabled] = useState(false);
+
+  const librasEnabledRef = useRef(librasEnabled);
+  librasEnabledRef.current = librasEnabled;
 
   const isActive = camStatus === "active" && wsStatus === "connected";
 
@@ -34,8 +43,19 @@ export function CameraFeed() {
     fps: CAPTURE_FPS,
     quality: JPEG_QUALITY,
     onFrame: sendFrame,
-    enabled: isActive,
+    enabled: isActive && emotionEnabled,
   });
+
+  const libras = useLibrasRecognition({ enabled: librasEnabled });
+
+  const handleLandmarks = useCallback(
+    (landmarks: { x: number; y: number; z: number }[][]) => {
+      if (librasEnabledRef.current && landmarks[0]) {
+        libras.feedResult(classifyLibrasLetter(landmarks[0]));
+      }
+    },
+    [libras.feedResult],
+  );
 
   const { clearDrawing } = useHandTracking({
     videoRef,
@@ -43,20 +63,13 @@ export function CameraFeed() {
     drawingCanvasRef,
     enabled: camStatus === "active",
     drawingEnabled,
+    onLandmarks: handleLandmarks,
   });
 
   const handleAllow = () => {
     startCamera();
     connect();
   };
-
-  const handleToggleDrawing = useCallback(() => {
-    setDrawingEnabled((prev) => !prev);
-  }, []);
-
-  const handleClearDrawing = useCallback(() => {
-    clearDrawing();
-  }, [clearDrawing]);
 
   if (camStatus === "idle" || camStatus === "denied") {
     return <PermissionPrompt onAllow={handleAllow} error={camError} />;
@@ -69,12 +82,25 @@ export function CameraFeed() {
         <video ref={videoRef} autoPlay playsInline muted />
         <canvas ref={landmarksCanvasRef} className="hand-landmarks-canvas" />
         <canvas ref={drawingCanvasRef} className="drawing-canvas" />
-        {lastResult && <EmotionOverlay result={lastResult} />}
+        {emotionEnabled && lastResult && <EmotionOverlay result={lastResult} />}
+        {librasEnabled && (
+          <LibrasOverlay
+            currentLetter={libras.currentLetter}
+            confidence={libras.currentConfidence}
+            text={libras.text}
+          />
+        )}
       </div>
-      <DrawingControls
+      <FeatureToggles
+        emotionEnabled={emotionEnabled}
         drawingEnabled={drawingEnabled}
-        onToggle={handleToggleDrawing}
-        onClear={handleClearDrawing}
+        librasEnabled={librasEnabled}
+        onToggleEmotion={() => setEmotionEnabled((p) => !p)}
+        onToggleDrawing={() => setDrawingEnabled((p) => !p)}
+        onToggleLibras={() => setLibrasEnabled((p) => !p)}
+        onClearDrawing={clearDrawing}
+        onClearText={libras.clearText}
+        onBackspace={libras.backspace}
       />
     </div>
   );
