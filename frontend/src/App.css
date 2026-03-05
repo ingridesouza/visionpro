@@ -139,12 +139,74 @@
   }
 }
 
+/* Hand Landmarks Canvas */
+.hand-landmarks-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  transform: scaleX(-1);
+}
+
+/* Drawing Canvas */
+.drawing-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  transform: scaleX(-1);
+}
+
+/* Drawing Controls */
+.drawing-controls {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.drawing-toggle,
+.drawing-clear {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border: 2px solid #45475a;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.drawing-toggle:hover,
+.drawing-clear:hover {
+  background: #313244;
+  border-color: #585b70;
+}
+
+.drawing-toggle.active {
+  background: #89b4fa;
+  color: #1e1e2e;
+  border-color: #89b4fa;
+}
+
+.drawing-toggle.active:hover {
+  background: #74c7ec;
+  border-color: #74c7ec;
+}
+
 /* Emotion Overlay */
 .emotion-overlay {
   position: absolute;
   bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 4;
   display: flex;
   align-items: center;
   gap: 0.75rem;

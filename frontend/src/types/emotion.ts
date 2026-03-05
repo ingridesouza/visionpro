@@ -1,3 +1,15 @@
+export interface HandLandmarkPoint {
+  x: number;
+  y: number;
+  z: number;
+}
+
+export interface HandData {
+  landmarks: HandLandmarkPoint[];
+  handedness: string;
+  index_finger_tip: { x: number; y: number };
+}
+
 export interface EmotionResult {
   emotion: string | null;
   confidence: number | null;
@@ -6,6 +18,7 @@ export interface EmotionResult {
   face_detected: boolean;
   processing_time_ms: number;
   error?: string;
+  hands?: HandData[] | null;
 }
 
 export type EmotionLabel =
