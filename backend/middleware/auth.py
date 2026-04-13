@@ -7,7 +7,6 @@ In production, replace with JWT or OAuth2.
 import hashlib
 import hmac
 import secrets
-from typing import Optional
 
 from config import settings
 
@@ -17,7 +16,7 @@ def generate_api_key() -> str:
     return secrets.token_urlsafe(32)
 
 
-def validate_token(token: Optional[str]) -> bool:
+def validate_token(token: str | None) -> bool:
     """
     Validate a WebSocket connection token.
     When AUTH_ENABLED is False, all connections are allowed (development mode).

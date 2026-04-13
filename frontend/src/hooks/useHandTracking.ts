@@ -48,9 +48,17 @@ export function useHandTracking({
   const drawCanvasReadyRef = useRef(false);
   const onLandmarksRef = useRef(onLandmarks);
 
-  drawingEnabledRef.current = drawingEnabled;
-  enabledRef.current = enabled;
-  onLandmarksRef.current = onLandmarks;
+  useEffect(() => {
+    drawingEnabledRef.current = drawingEnabled;
+  }, [drawingEnabled]);
+
+  useEffect(() => {
+    enabledRef.current = enabled;
+  }, [enabled]);
+
+  useEffect(() => {
+    onLandmarksRef.current = onLandmarks;
+  }, [onLandmarks]);
 
   useEffect(() => {
     let cancelled = false;

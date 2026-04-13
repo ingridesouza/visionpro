@@ -11,6 +11,7 @@ export function useWebSocket(url: string) {
   const reconnectTimeoutRef = useRef<number | null>(null);
   const awaitingResponseRef = useRef(false);
   const reconnectAttemptsRef = useRef(0);
+  const connectRef = useRef<() => void>(null);
   const [status, setStatus] = useState<WSStatus>("disconnected");
   const [lastResult, setLastResult] = useState<EmotionResult | null>(null);
 
@@ -73,11 +74,15 @@ export function useWebSocket(url: string) {
         MAX_RECONNECT_DELAY,
       );
       reconnectAttemptsRef.current = attempts + 1;
-      reconnectTimeoutRef.current = window.setTimeout(connect, delay);
+      reconnectTimeoutRef.current = window.setTimeout(() => {
+        connectRef.current?.();
+      }, delay);
     };
 
     wsRef.current = ws;
   }, [url, cleanupWs]);
+
+  connectRef.current = connect;
 
   const sendFrame = useCallback((frameBase64: string) => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) return;

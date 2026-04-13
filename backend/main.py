@@ -9,8 +9,8 @@ from config import settings
 from middleware.rate_limiter import RateLimiter
 from middleware.security import SecurityHeadersMiddleware
 from routers import health, websocket
-from services.emotion_detector import EmotionDetector
 from services.drowsiness_detector import DrowsinessDetector
+from services.emotion_detector import EmotionDetector
 
 
 def _configure_logging() -> None:

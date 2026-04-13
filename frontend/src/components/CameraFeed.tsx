@@ -36,7 +36,9 @@ export function CameraFeed() {
   const [librasEnabled, setLibrasEnabled] = useState(false);
 
   const librasEnabledRef = useRef(librasEnabled);
-  librasEnabledRef.current = librasEnabled;
+  useEffect(() => {
+    librasEnabledRef.current = librasEnabled;
+  }, [librasEnabled]);
 
   const isActive = camStatus === "active" && wsStatus === "connected";
 
@@ -56,6 +58,7 @@ export function CameraFeed() {
         libras.feedResult(classifyLibrasLetter(landmarks[0]));
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [libras.feedResult],
   );
 
