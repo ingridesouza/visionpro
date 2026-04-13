@@ -30,6 +30,7 @@
   text-align: center;
   max-width: 400px;
   width: 100%;
+  animation: fadeInUp 0.4s ease-out;
 }
 
 .permission-card::before {
@@ -80,6 +81,7 @@
   color: var(--error) !important;
   font-size: 0.8rem;
   margin-bottom: 1rem !important;
+  animation: shake 0.3s ease-in-out;
 }
 
 .permission-button {
@@ -106,6 +108,34 @@
   transform: translateY(0);
 }
 
+/* === Loading Overlay === */
+
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  gap: 1.5rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-text {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
 /* === Camera Feed Layout === */
 
 .camera-feed-container {
@@ -124,6 +154,7 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-lg), 0 0 0 1px var(--border);
+  animation: fadeIn 0.5s ease-out;
 }
 
 .video-wrapper video {
@@ -131,6 +162,32 @@
   max-width: 92vw;
   max-height: 82vh;
   transform: scaleX(-1);
+}
+
+/* === Theme Toggle === */
+
+.theme-toggle {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 50;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  padding: 0.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+
+.theme-toggle:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
 }
 
 /* === Connection Status — Floating pill top-left === */
@@ -193,11 +250,6 @@
   opacity: 1;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
 /* === Hand Landmarks Canvas === */
 
 .hand-landmarks-canvas {
@@ -236,6 +288,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
+  animation: slideUp 0.4s ease-out;
 }
 
 .feature-toggles-row {
@@ -281,6 +334,7 @@
 .feature-actions {
   display: flex;
   gap: 0.375rem;
+  animation: fadeIn 0.2s ease-out;
 }
 
 .feature-action {
@@ -320,6 +374,7 @@
   border-radius: var(--radius-full);
   border: 1px solid var(--glass-border);
   white-space: nowrap;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .emotion-overlay.no-face {
@@ -336,6 +391,7 @@
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: -0.01em;
+  transition: color var(--transition);
 }
 
 .emotion-confidence {
@@ -367,6 +423,7 @@
   border-radius: var(--radius-full);
   border: 1px solid var(--glass-border);
   min-width: 100px;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .libras-letter {
@@ -375,6 +432,7 @@
   color: var(--accent);
   line-height: 1;
   letter-spacing: -0.02em;
+  transition: color var(--transition);
 }
 
 .libras-confidence {
@@ -404,4 +462,101 @@
   height: 20px;
   background: var(--glass-border);
   flex-shrink: 0;
+}
+
+/* === Animations === */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+/* === Responsive === */
+
+@media (max-width: 640px) {
+  .permission-card {
+    padding: 2.5rem 1.5rem;
+    margin: 1rem;
+  }
+
+  .video-wrapper video {
+    max-width: 100vw;
+    max-height: 70vh;
+  }
+
+  .video-wrapper {
+    border-radius: 0;
+  }
+
+  .feature-toggle {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+  }
+
+  .emotion-overlay {
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .libras-overlay {
+    padding: 0.4rem 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .libras-letter {
+    font-size: 1.25rem;
+  }
+
+  .libras-text {
+    max-width: 150px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .feature-toggles-row {
+    flex-wrap: wrap;
+    border-radius: var(--radius-lg);
+    justify-content: center;
+  }
 }

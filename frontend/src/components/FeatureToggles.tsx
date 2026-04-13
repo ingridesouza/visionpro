@@ -1,3 +1,5 @@
+import { t } from "../lib/i18n";
+
 interface Props {
   emotionEnabled: boolean;
   drawingEnabled: boolean;
@@ -22,46 +24,64 @@ export function FeatureToggles({
   onBackspace,
 }: Props) {
   return (
-    <div className="feature-toggles">
+    <nav className="feature-toggles" aria-label="Feature controls">
       {(drawingEnabled || librasEnabled) && (
-        <div className="feature-actions">
+        <div className="feature-actions" role="toolbar" aria-label="Actions">
           {drawingEnabled && (
-            <button className="feature-action" onClick={onClearDrawing}>
-              Limpar desenho
+            <button
+              className="feature-action"
+              onClick={onClearDrawing}
+              aria-label={t("feature.clear_drawing")}
+            >
+              {t("feature.clear_drawing")}
             </button>
           )}
           {librasEnabled && (
             <>
-              <button className="feature-action" onClick={onBackspace}>
-                Apagar
+              <button
+                className="feature-action"
+                onClick={onBackspace}
+                aria-label={t("feature.backspace")}
+              >
+                {t("feature.backspace")}
               </button>
-              <button className="feature-action" onClick={onClearText}>
-                Limpar texto
+              <button
+                className="feature-action"
+                onClick={onClearText}
+                aria-label={t("feature.clear_text")}
+              >
+                {t("feature.clear_text")}
               </button>
             </>
           )}
         </div>
       )}
-      <div className="feature-toggles-row">
+      <div className="feature-toggles-row" role="toolbar" aria-label="Feature toggles">
         <button
           className={`feature-toggle ${emotionEnabled ? "active" : ""}`}
           onClick={onToggleEmotion}
+          aria-pressed={emotionEnabled}
+          aria-label={t("feature.emotions")}
         >
-          Sentimentos
+          {t("feature.emotions")}
         </button>
         <button
           className={`feature-toggle ${drawingEnabled ? "active" : ""}`}
           onClick={onToggleDrawing}
+          aria-pressed={drawingEnabled}
+          aria-label={t("feature.drawing")}
         >
-          Desenhar
+          {t("feature.drawing")}
         </button>
         <button
           className={`feature-toggle ${librasEnabled ? "active" : ""}`}
           onClick={onToggleLibras}
+          aria-pressed={librasEnabled}
+          aria-label={t("feature.libras")}
         >
-          Libras
+          {t("feature.libras")}
         </button>
       </div>
-    </div>
+    </nav>
   );
 }

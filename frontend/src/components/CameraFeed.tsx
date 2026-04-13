@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useCamera } from "../hooks/useCamera";
 import { useWebSocket } from "../hooks/useWebSocket";
 import { useFrameCapture } from "../hooks/useFrameCapture";
@@ -10,7 +10,9 @@ import { FeatureToggles } from "./FeatureToggles";
 import { LibrasOverlay } from "./LibrasOverlay";
 import { PermissionPrompt } from "./PermissionPrompt";
 import { ConnectionStatus } from "./ConnectionStatus";
+import { LoadingOverlay } from "./LoadingOverlay";
 import { WS_URL, CAPTURE_FPS, JPEG_QUALITY } from "../constants/config";
+import { t } from "../lib/i18n";
 
 export function CameraFeed() {
   const {
@@ -71,17 +73,59 @@ export function CameraFeed() {
     connect();
   };
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      switch (e.key) {
+        case "1":
+          setEmotionEnabled((p) => !p);
+          break;
+        case "2":
+          setDrawingEnabled((p) => !p);
+          break;
+        case "3":
+          setLibrasEnabled((p) => !p);
+          break;
+        case "Escape":
+          clearDrawing();
+          break;
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [clearDrawing]);
+
   if (camStatus === "idle" || camStatus === "denied") {
     return <PermissionPrompt onAllow={handleAllow} error={camError} />;
   }
 
+  if (camStatus === "requesting") {
+    return <LoadingOverlay message={t("loading.camera")} />;
+  }
+
   return (
-    <div className="camera-feed-container">
+    <main className="camera-feed-container" role="main" aria-label="Camera feed">
       <ConnectionStatus status={wsStatus} />
       <div className="video-wrapper">
-        <video ref={videoRef} autoPlay playsInline muted />
-        <canvas ref={landmarksCanvasRef} className="hand-landmarks-canvas" />
-        <canvas ref={drawingCanvasRef} className="drawing-canvas" />
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          aria-label="Camera preview"
+        />
+        <canvas
+          ref={landmarksCanvasRef}
+          className="hand-landmarks-canvas"
+          aria-hidden="true"
+        />
+        <canvas
+          ref={drawingCanvasRef}
+          className="drawing-canvas"
+          aria-hidden="true"
+        />
         {emotionEnabled && lastResult && <EmotionOverlay result={lastResult} />}
         {librasEnabled && (
           <LibrasOverlay
@@ -102,6 +146,6 @@ export function CameraFeed() {
         onClearText={libras.clearText}
         onBackspace={libras.backspace}
       />
-    </div>
+    </main>
   );
 }
