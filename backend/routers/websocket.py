@@ -1,3 +1,4 @@
+import contextlib
 import json
 import logging
 from uuid import uuid4
@@ -104,10 +105,8 @@ async def emotion_websocket(websocket: WebSocket):
         logger.info("Client %s disconnected", client_id)
     except Exception as e:
         logger.error("WebSocket error for %s: %s", client_id, e, exc_info=True)
-        try:
+        with contextlib.suppress(Exception):
             await websocket.close(code=1011, reason="Internal error")
-        except Exception:
-            pass
     finally:
         websocket.app.state.ws_connection_count -= 1
         rate_limiter.remove_client(client_id)

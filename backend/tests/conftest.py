@@ -8,22 +8,23 @@ from fastapi.testclient import TestClient
 from main import app
 
 
-@pytest.fixture()
+@pytest.fixture
 def client():
     """FastAPI test client."""
     return TestClient(app)
 
 
-@pytest.fixture()
+@pytest.fixture
 def dummy_frame_b64() -> str:
     """A valid 10x10 JPEG encoded as base64."""
     import cv2
+
     img = np.zeros((10, 10, 3), dtype=np.uint8)
     _, buf = cv2.imencode(".jpg", img)
     return base64.b64encode(buf.tobytes()).decode()
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_emotion_detector():
     detector = MagicMock()
     detector.detect_emotion.return_value = {
@@ -34,7 +35,7 @@ def mock_emotion_detector():
     return detector
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_drowsiness_detector():
     detector = MagicMock()
     detector.detect.return_value = False

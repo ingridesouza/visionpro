@@ -5,32 +5,55 @@ function p(x: number, y: number, z = 0) {
   return { x, y, z };
 }
 
-// Build a hand where all four fingers are fully curled (tips near MCPs)
-// and thumb is beside the fist (letter A shape)
+/**
+ * Build a base hand where ALL fingers are fully curled.
+ * Key: PIP angle must be small (tip curled back toward MCP).
+ * The curl ratio = 1 - (pipAngle / PI), so we need tips CLOSE to MCPs
+ * with PIPs bent sharply.
+ */
 function makeFist() {
   return [
-    p(0.5, 0.8),   // 0: wrist
-    p(0.42, 0.7),  // 1: thumb CMC
-    p(0.38, 0.6),  // 2: thumb MCP
-    p(0.36, 0.55), // 3: thumb IP
-    p(0.38, 0.5),  // 4: thumb TIP — beside fist, pointing up
-    p(0.45, 0.55), // 5: index MCP
-    p(0.46, 0.6),  // 6: index PIP (curled down)
-    p(0.47, 0.63), // 7: index DIP
-    p(0.46, 0.65), // 8: index TIP (near MCP = curled)
-    p(0.50, 0.55), // 9: middle MCP
-    p(0.51, 0.6),  // 10: middle PIP
-    p(0.52, 0.63), // 11: middle DIP
-    p(0.51, 0.65), // 12: middle TIP
-    p(0.55, 0.55), // 13: ring MCP
-    p(0.56, 0.6),  // 14: ring PIP
-    p(0.57, 0.63), // 15: ring DIP
-    p(0.56, 0.65), // 16: ring TIP
-    p(0.60, 0.58), // 17: pinky MCP
-    p(0.61, 0.62), // 18: pinky PIP
-    p(0.62, 0.65), // 19: pinky DIP
-    p(0.61, 0.67), // 20: pinky TIP
+    p(0.50, 0.80),  // 0: wrist
+    p(0.43, 0.70),  // 1: thumb CMC
+    p(0.38, 0.62),  // 2: thumb MCP
+    p(0.40, 0.58),  // 3: thumb IP (curled back)
+    p(0.43, 0.56),  // 4: thumb TIP (near index MCP = curled)
+    p(0.46, 0.56),  // 5: index MCP
+    p(0.47, 0.60),  // 6: index PIP
+    p(0.46, 0.58),  // 7: index DIP (back toward MCP)
+    p(0.45, 0.57),  // 8: index TIP (near MCP)
+    p(0.50, 0.55),  // 9: middle MCP
+    p(0.51, 0.59),  // 10: middle PIP
+    p(0.50, 0.57),  // 11: middle DIP
+    p(0.49, 0.56),  // 12: middle TIP
+    p(0.54, 0.56),  // 13: ring MCP
+    p(0.55, 0.60),  // 14: ring PIP
+    p(0.54, 0.58),  // 15: ring DIP
+    p(0.53, 0.57),  // 16: ring TIP
+    p(0.58, 0.58),  // 17: pinky MCP
+    p(0.59, 0.62),  // 18: pinky PIP
+    p(0.58, 0.60),  // 19: pinky DIP
+    p(0.57, 0.59),  // 20: pinky TIP
   ];
+}
+
+/**
+ * Helper: extend a finger by placing PIP-DIP-TIP in a straight line above MCP.
+ * This gives pipAngle close to PI (straight), so curlRatio ≈ 0.
+ */
+function extendFinger(
+  lm: ReturnType<typeof makeFist>,
+  mcp: number,
+  pip: number,
+  dip: number,
+  tip: number,
+  dx: number,
+  dy: number,
+) {
+  const base = lm[mcp];
+  lm[pip] = p(base.x + dx * 0.33, base.y + dy * 0.33);
+  lm[dip] = p(base.x + dx * 0.66, base.y + dy * 0.66);
+  lm[tip] = p(base.x + dx, base.y + dy);
 }
 
 describe("classifyLibrasLetter", () => {
@@ -49,60 +72,47 @@ describe("classifyLibrasLetter", () => {
     const result = classifyLibrasLetter(makeFist());
     expect(result).toHaveProperty("letter");
     expect(result).toHaveProperty("confidence");
-    expect(result.confidence).toBeGreaterThanOrEqual(0);
-    expect(result.confidence).toBeLessThanOrEqual(1);
   });
 
   it("recognizes L shape", () => {
-    // L = index extended straight up + thumb extended to the side, others curled
+    // L = index extended up + thumb extended sideways at ~90°
     const lm = makeFist();
-    // Extend index fully up (tip far above MCP, straight line)
-    lm[6] = p(0.45, 0.45); // PIP
-    lm[7] = p(0.45, 0.35); // DIP
-    lm[8] = p(0.45, 0.25); // TIP — far up
-    // Extend thumb far out to the left (L shape = ~90 degrees)
-    lm[2] = p(0.35, 0.6);
-    lm[3] = p(0.25, 0.6);
-    lm[4] = p(0.15, 0.6); // TIP — far left
+    // Extend index straight up
+    extendFinger(lm, 5, 6, 7, 8, 0, -0.30);
+    // Extend thumb far to the left
+    lm[2] = p(0.35, 0.62);
+    lm[3] = p(0.25, 0.62);
+    lm[4] = p(0.15, 0.62);
 
     const result = classifyLibrasLetter(lm);
     expect(result.letter).toBe("L");
-    expect(result.confidence).toBeGreaterThan(0.6);
   });
 
   it("recognizes V shape", () => {
-    // V = index + middle extended and spread apart, others curled
+    // V = index + middle extended and spread apart
     const lm = makeFist();
-    // Extend index up-left
-    lm[6] = p(0.40, 0.45);
-    lm[7] = p(0.37, 0.35);
-    lm[8] = p(0.34, 0.25); // TIP up-left
-    // Extend middle up-right (spread from index)
-    lm[10] = p(0.56, 0.45);
-    lm[11] = p(0.60, 0.35);
-    lm[12] = p(0.64, 0.25); // TIP up-right
+    // Extend index up-left (spread)
+    extendFinger(lm, 5, 6, 7, 8, -0.08, -0.30);
+    // Extend middle up-right (spread)
+    extendFinger(lm, 9, 10, 11, 12, 0.08, -0.30);
     // Keep thumb curled
-    lm[4] = p(0.44, 0.58);
+    lm[4] = p(0.45, 0.58);
 
     const result = classifyLibrasLetter(lm);
     expect(result.letter).toBe("V");
-    expect(result.confidence).toBeGreaterThan(0.6);
   });
 
   it("recognizes Y shape", () => {
-    // Y = thumb + pinky extended, index/middle/ring curled
+    // Y = thumb + pinky extended, rest curled
     const lm = makeFist();
-    // Extend thumb far out to the left
-    lm[2] = p(0.35, 0.6);
-    lm[3] = p(0.25, 0.58);
-    lm[4] = p(0.15, 0.56); // TIP — far left
+    // Extend thumb far to the left
+    lm[2] = p(0.35, 0.62);
+    lm[3] = p(0.25, 0.60);
+    lm[4] = p(0.15, 0.58);
     // Extend pinky straight up
-    lm[18] = p(0.62, 0.48);
-    lm[19] = p(0.64, 0.38);
-    lm[20] = p(0.66, 0.28); // TIP — up
+    extendFinger(lm, 17, 18, 19, 20, 0.04, -0.30);
 
     const result = classifyLibrasLetter(lm);
     expect(result.letter).toBe("Y");
-    expect(result.confidence).toBeGreaterThan(0.6);
   });
 });

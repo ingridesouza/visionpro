@@ -17,20 +17,20 @@ class TestCircuitBreaker:
     def test_opens_after_threshold(self):
         cb = CircuitBreaker("test", failure_threshold=3)
         for _ in range(3):
-            with pytest.raises(ValueError):
+            with pytest.raises(ValueError, match="boom"):
                 cb.call(_fail)
         assert cb.state == CircuitState.OPEN
 
     def test_open_rejects_immediately(self):
         cb = CircuitBreaker("test", failure_threshold=1, recovery_timeout=9999)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="boom"):
             cb.call(_fail)
         with pytest.raises(CircuitOpenError):
             cb.call(lambda: 1)
 
     def test_half_open_recovery(self):
         cb = CircuitBreaker("test", failure_threshold=1, recovery_timeout=0)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="boom"):
             cb.call(_fail)
         assert cb.state == CircuitState.OPEN
         # Recovery timeout = 0 so it immediately transitions

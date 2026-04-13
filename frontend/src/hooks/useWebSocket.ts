@@ -82,7 +82,9 @@ export function useWebSocket(url: string) {
     wsRef.current = ws;
   }, [url, cleanupWs]);
 
-  connectRef.current = connect;
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   const sendFrame = useCallback((frameBase64: string) => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) return;

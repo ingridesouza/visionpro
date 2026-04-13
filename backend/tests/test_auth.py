@@ -21,17 +21,17 @@ class TestAuth:
     def test_validate_enabled_correct(self):
         with patch("middleware.auth.settings") as mock_settings:
             mock_settings.AUTH_ENABLED = True
-            mock_settings.API_SECRET_KEY = "my-secret"
+            mock_settings.API_SECRET_KEY = "my-secret"  # noqa: S105
             assert validate_token("my-secret") is True
 
     def test_validate_enabled_wrong(self):
         with patch("middleware.auth.settings") as mock_settings:
             mock_settings.AUTH_ENABLED = True
-            mock_settings.API_SECRET_KEY = "my-secret"
+            mock_settings.API_SECRET_KEY = "my-secret"  # noqa: S105
             assert validate_token("wrong") is False
 
     def test_validate_enabled_none(self):
         with patch("middleware.auth.settings") as mock_settings:
             mock_settings.AUTH_ENABLED = True
-            mock_settings.API_SECRET_KEY = "secret"
+            mock_settings.API_SECRET_KEY = "secret"  # noqa: S105
             assert validate_token(None) is False
