@@ -1,0 +1,46 @@
+[project]
+name = "visionpro-backend"
+version = "1.0.0"
+description = "Real-time computer vision API for emotion, drowsiness, and gesture detection"
+requires-python = ">=3.11"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "S",    # flake8-bandit (security)
+    "UP",   # pyupgrade
+    "SIM",  # flake8-simplify
+    "RUF",  # Ruff-specific rules
+    "T20",  # flake8-print
+    "PT",   # flake8-pytest-style
+]
+ignore = [
+    "S101",  # allow assert in tests
+    "B008",  # allow function calls in defaults (FastAPI Depends)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "S106"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "models", "routers", "services", "utils", "middleware"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["services", "routers", "middleware", "utils", "models"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 60

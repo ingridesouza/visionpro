@@ -1,10 +1,13 @@
+# Core
 fastapi==0.115.*
 uvicorn[standard]==0.34.*
 websockets==14.*
+pydantic==2.*
+pydantic-settings==2.*
+python-dotenv==1.*
+
+# Computer Vision / ML
 deepface==0.0.93
 opencv-python-headless==4.10.*
 mediapipe==0.10.*
 numpy>=1.26
-pydantic==2.*
-pydantic-settings==2.*
-python-dotenv==1.*
