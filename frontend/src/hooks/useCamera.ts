@@ -20,9 +20,6 @@ export function useCamera() {
         audio: false,
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
       setStatus("active");
     } catch (err) {
       if (err instanceof DOMException && err.name === "NotAllowedError") {
@@ -34,6 +31,13 @@ export function useCamera() {
       }
     }
   }, []);
+
+  // Attach stream to video element once it's in the DOM and status is active
+  useEffect(() => {
+    if (status === "active" && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+  }, [status]);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());

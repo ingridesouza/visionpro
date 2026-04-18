@@ -159,9 +159,11 @@
 
 .video-wrapper video {
   display: block;
+  width: 640px;
   max-width: 92vw;
   max-height: 82vh;
   transform: scaleX(-1);
+  background: #000;
 }
 
 /* === Theme Toggle === */

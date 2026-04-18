@@ -104,12 +104,9 @@ export function CameraFeed() {
     return <PermissionPrompt onAllow={handleAllow} error={camError} />;
   }
 
-  if (camStatus === "requesting") {
-    return <LoadingOverlay message={t("loading.camera")} />;
-  }
-
   return (
     <main className="camera-feed-container" role="main" aria-label="Camera feed">
+      {camStatus === "requesting" && <LoadingOverlay message={t("loading.camera")} />}
       <ConnectionStatus status={wsStatus} />
       <div className="video-wrapper">
         <video
