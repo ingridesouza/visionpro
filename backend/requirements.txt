@@ -7,7 +7,7 @@ pydantic-settings==2.*
 python-dotenv==1.*
 
 # Computer Vision / ML
-deepface==0.0.93
+deepface==0.0.99
 tf-keras>=2.16
 opencv-python-headless==4.10.*
 mediapipe==0.10.*
