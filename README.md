@@ -1,129 +1,45 @@
 # VisionPro
 
-Plataforma de analise visual em tempo real que combina deteccao de emocoes, reconhecimento de gestos em Libras e desenho com as maos — tudo direto no navegador.
+Real-time computer vision application that detects **emotions**, **drowsiness**, **hand gestures**, and **Libras** (Brazilian Sign Language) letters through webcam input.
 
----
-
-## Funcionalidades
-
-### Deteccao de Emocoes
-- Identifica 7 emocoes (feliz, triste, raiva, surpresa, medo, nojo, neutro) + sonolencia
-- Processamento via DeepFace no backend com resultados em tempo real
-- Overlay discreto sobre o video com emoji, label e confianca
-
-### Reconhecimento de Libras
-- Classifica 21 letras estaticas do alfabeto de Libras (A-Y)
-- Classificador geometrico baseado em landmarks da mao — sem modelo ML externo
-- Filtro de estabilidade: exige 10 frames consecutivos para confirmar uma letra
-- Acumula texto como legenda em tempo real (pausa de 1.5s insere espaco)
-
-### Desenho com as Maos
-- O dedo indicador funciona como pincel digital
-- Deteccao de mao roda no frontend via MediaPipe WASM a ~30 FPS
-- Canvas incremental para performance suave
-
-### Interface
-- UI minimalista com glassmorphism e paleta dark premium
-- Toggles independentes: cada feature pode ser ativada/desativada separadamente
-- Status de conexao flutuante com auto-fade
-- Layout full viewport com video centralizado
-
----
-
-## Arquitetura
-
-```
-Browser (React + Vite)              Backend (FastAPI)
-┌─────────────────────┐             ┌──────────────────────┐
-│  Camera Feed        │  WebSocket  │  /ws/emotion         │
-│  useCamera          │────────────>│  FrameProcessor      │
-│  useFrameCapture    │<────────────│    EmotionDetector    │
-│                     │  JSON       │    DrowsinessDetector │
-│  useHandTracking    │             └──────────────────────┘
-│  (MediaPipe WASM)   │
-│                     │
-│  librasClassifier   │
-│  useLibrasRecognition│
-└─────────────────────┘
-```
-
-- **Emocoes e sonolencia**: frames capturados no frontend, enviados via WebSocket ao backend, processados com DeepFace + MediaPipe FaceLandmarker, resultado retornado como JSON
-- **Maos e Libras**: processamento 100% no frontend usando `@mediapipe/tasks-vision` (HandLandmarker WASM) para baixa latencia (~30 FPS vs ~3 FPS se fosse backend)
-
----
-
-## Stack
-
-| Camada   | Tecnologia                                             |
-| -------- | ------------------------------------------------------ |
-| Frontend | React 19, TypeScript 5.9, Vite 7                      |
-| Backend  | Python, FastAPI 0.115, Uvicorn                         |
-| ML       | DeepFace 0.0.93, MediaPipe 0.10, @mediapipe/tasks-vision |
-| Visao    | OpenCV (headless), Canvas API                          |
-| Comunicacao | WebSocket (bidirectional streaming)                 |
-
----
-
-## Estrutura do Projeto
+## Architecture
 
 ```
 visionpro/
-├── backend/
-│   ├── main.py                  # Entrypoint FastAPI + lifespan
-│   ├── config.py                # Settings via pydantic-settings
-│   ├── requirements.txt
-│   ├── .env.example
-│   ├── routers/
-│   │   ├── health.py            # GET /health
-│   │   └── websocket.py         # WebSocket /ws/emotion
-│   ├── services/
-│   │   ├── emotion_detector.py  # DeepFace wrapper
-│   │   ├── drowsiness_detector.py # Eye aspect ratio (EAR)
-│   │   ├── hand_detector.py     # MediaPipe HandLandmarker
-│   │   └── frame_processor.py   # Orquestra deteccoes em paralelo
-│   ├── models/
-│   │   └── schemas.py           # Pydantic schemas
-│   └── utils/
-│       └── image_utils.py       # Base64 decode, resize
-│
-├── frontend/
-│   ├── package.json
-│   ├── vite.config.ts
-│   ├── tsconfig.json
-│   └── src/
-│       ├── App.tsx
-│       ├── components/
-│       │   ├── CameraFeed.tsx       # Componente principal
-│       │   ├── EmotionOverlay.tsx    # Overlay de emocoes
-│       │   ├── LibrasOverlay.tsx     # Legenda de Libras
-│       │   ├── FeatureToggles.tsx    # Barra de toggles
-│       │   ├── ConnectionStatus.tsx  # Pill de status
-│       │   └── PermissionPrompt.tsx  # Tela inicial
-│       ├── hooks/
-│       │   ├── useCamera.ts         # Acesso a camera
-│       │   ├── useWebSocket.ts      # Conexao WS com reconnect
-│       │   ├── useFrameCapture.ts   # Captura de frames
-│       │   ├── useHandTracking.ts   # MediaPipe WASM + drawing
-│       │   └── useLibrasRecognition.ts # Filtro de estabilidade
-│       ├── lib/
-│       │   └── librasClassifier.ts  # Classificador geometrico
-│       ├── constants/
-│       │   ├── config.ts            # URLs, FPS, qualidade
-│       │   └── emotions.ts          # Labels e cores
-│       └── types/
-│           └── emotion.ts           # TypeScript interfaces
-│
-└── README.md
+├── frontend/          React 19 + TypeScript + Vite
+│   ├── src/
+│   │   ├── components/   UI components (CameraFeed, Overlays, Toggles)
+│   │   ├── hooks/        Custom hooks (useCamera, useWebSocket, useHandTracking)
+│   │   ├── lib/          Libras classifier, i18n
+│   │   ├── constants/    Config, emotion mappings
+│   │   └── types/        TypeScript interfaces
+│   └── Dockerfile
+├── backend/           Python FastAPI
+│   ├── services/      Detectors (emotion, drowsiness, frame processor)
+│   ├── routers/       API routes (health, WebSocket)
+│   ├── middleware/     Security (auth, rate limiter, headers)
+│   ├── models/        Pydantic schemas
+│   ├── utils/         Image processing utilities
+│   ├── tests/         pytest test suite
+│   └── Dockerfile
+├── docker-compose.yml
+└── .github/           CI/CD workflows, Dependabot
 ```
 
----
+## Features
 
-## Como Rodar
+| Feature | Technology | Description |
+|---------|-----------|-------------|
+| Emotion Detection | DeepFace + OpenCV | 7 emotions: happy, sad, angry, surprise, neutral, fear, disgust |
+| Drowsiness Detection | MediaPipe FaceLandmarker | Eye Aspect Ratio (EAR) with consecutive frame threshold |
+| Hand Drawing | MediaPipe HandLandmarker | Real-time index finger tip tracking on canvas |
+| Libras Recognition | Geometry-based classifier | 22 letters (A-G, I-W, Y) via landmark analysis |
 
-### Pre-requisitos
+## Quick Start
 
+### Prerequisites
 - Python 3.11+
-- Node.js 18+
+- Node.js 22+
 - Webcam
 
 ### Backend
@@ -131,13 +47,11 @@ visionpro/
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env
 uvicorn main:app --reload
 ```
-
-O backend roda em `http://localhost:8000`. Na primeira execucao, o DeepFace baixa os modelos automaticamente (~100MB).
 
 ### Frontend
 
@@ -147,29 +61,110 @@ npm install
 npm run dev
 ```
 
-O frontend roda em `http://localhost:5173`. Abra no navegador e permita acesso a camera.
+Open http://localhost:5173 in your browser.
 
----
+### Docker
 
-## Variaveis de Ambiente
+```bash
+docker compose up --build
+```
 
-| Variavel             | Default                       | Descricao                        |
-| -------------------- | ----------------------------- | -------------------------------- |
-| `CORS_ORIGINS`       | `["http://localhost:5173"]`   | Origens permitidas pelo CORS     |
-| `DETECTOR_BACKEND`   | `opencv`                      | Backend do DeepFace              |
-| `TARGET_FRAME_WIDTH` | `480`                         | Largura do frame para processamento |
+Frontend at http://localhost, backend at http://localhost:8000.
 
----
+## Security
 
-## Decisoes Tecnicas
+| Feature | Implementation |
+|---------|---------------|
+| Authentication | Token-based WebSocket auth (configurable) |
+| Rate Limiting | Token-bucket per client (5 req/s default) |
+| Input Validation | Pydantic schemas + base64 format validation |
+| CORS | Restricted origins, methods, and headers |
+| Security Headers | X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy |
+| CSP | Content-Security-Policy in nginx production config |
+| Connection Limits | Max 10 concurrent WebSocket connections |
+| Circuit Breaker | Auto-disable failing detectors with recovery timeout |
+| Dependency Scanning | Dependabot (npm + pip + GitHub Actions) |
 
-- **Hand tracking no frontend**: mover a deteccao de maos do backend (3 FPS) para WASM no browser (30 FPS) eliminou a latencia de rede e melhorou drasticamente a experiencia de desenho
-- **Classificador geometrico para Libras**: usar distancias e angulos entre landmarks ao inves de um modelo ML permite funcionar offline, sem download de modelo, com baixa latencia
-- **WebSocket bidirecional**: permite streaming contínuo sem polling, com reconexao automatica e backoff exponencial (2s → 4s → 8s → max 30s)
-- **Processamento paralelo**: emocao e sonolencia rodam em `asyncio.gather` no backend para minimizar latencia por frame
+## Configuration
 
----
+Environment variables (see `backend/.env.example`):
 
-## Licenca
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CORS_ORIGINS` | `["http://localhost:5173"]` | Allowed frontend origins |
+| `DETECTOR_BACKEND` | `opencv` | Face detection backend |
+| `AUTH_ENABLED` | `false` | Enable WebSocket authentication |
+| `API_SECRET_KEY` | `` | Secret for token validation |
+| `RATE_LIMIT_FPS` | `5.0` | Max frames per second per client |
+| `MAX_WS_CONNECTIONS` | `10` | Max concurrent WebSocket connections |
+| `LOG_LEVEL` | `INFO` | Logging level |
+| `LOG_FORMAT` | `json` | Log format (json or text) |
 
-Este projeto foi desenvolvido para fins educacionais e de portfolio.
+## Testing
+
+### Backend
+```bash
+cd backend
+pip install -r requirements-dev.txt
+pytest --cov -q
+ruff check .
+```
+
+### Frontend
+```bash
+cd frontend
+npm run test
+npm run lint
+```
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `1` | Toggle Emotion Detection |
+| `2` | Toggle Hand Drawing |
+| `3` | Toggle Libras Recognition |
+| `Esc` | Clear drawing canvas |
+
+## Accessibility
+
+- WCAG 2.1 AA compliant ARIA labels on all interactive elements
+- `aria-live` regions for real-time status updates (screen reader friendly)
+- Keyboard navigation with visible focus indicators
+- Skip-to-content link
+- `prefers-reduced-motion` support
+- i18n: Portuguese (pt-BR) and English
+
+## API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Service status + uptime |
+| `/health/ready` | GET | Detector readiness check |
+| `/ws/emotion` | WebSocket | Real-time frame processing |
+
+### WebSocket Protocol
+
+**Send:**
+```json
+{ "frame": "data:image/jpeg;base64,..." }
+```
+
+**Receive:**
+```json
+{
+  "emotion": "happy",
+  "confidence": 0.95,
+  "all_scores": { "happy": 95.0, "sad": 2.0 },
+  "face_region": { "x": 10, "y": 10, "w": 50, "h": 50 },
+  "face_detected": true,
+  "processing_time_ms": 120
+}
+```
+
+## Tech Stack
+
+**Frontend:** React 19, TypeScript, Vite, MediaPipe Tasks Vision
+**Backend:** FastAPI, DeepFace, MediaPipe, OpenCV, Pydantic
+**DevOps:** Docker, GitHub Actions, Dependabot, Ruff
+**Testing:** Vitest + Testing Library (frontend), pytest (backend)

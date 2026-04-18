@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import mediapipe as mp
 import numpy as np
@@ -29,7 +29,7 @@ class HandDetector:
         )
         self.landmarker = HandLandmarker.create_from_options(options)
 
-    def detect(self, frame: np.ndarray) -> Optional[List[Dict[str, Any]]]:
+    def detect(self, frame: np.ndarray) -> list[dict[str, Any]] | None:
         """Detect hands and return normalized landmarks.
 
         Returns a list of hand dicts with:

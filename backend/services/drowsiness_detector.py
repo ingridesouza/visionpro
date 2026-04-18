@@ -1,4 +1,5 @@
 import os
+from typing import ClassVar
 
 import mediapipe as mp
 import numpy as np
@@ -15,8 +16,8 @@ MODEL_PATH = os.path.join(
 
 
 class DrowsinessDetector:
-    LEFT_EYE = [362, 385, 387, 263, 373, 380]
-    RIGHT_EYE = [33, 160, 158, 133, 153, 144]
+    LEFT_EYE: ClassVar[list[int]] = [362, 385, 387, 263, 373, 380]
+    RIGHT_EYE: ClassVar[list[int]] = [33, 160, 158, 133, 153, 144]
     EAR_THRESHOLD = 0.21
     CONSECUTIVE_FRAMES_THRESHOLD = 6  # ~2 seconds at 3 FPS
 

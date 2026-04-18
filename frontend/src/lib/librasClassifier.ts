@@ -28,10 +28,6 @@ function dist2d(a: Point, b: Point): number {
   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
 }
 
-function dist3d(a: Point, b: Point): number {
-  return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2);
-}
-
 /** Angle at point b formed by a-b-c, in radians */
 function angle(a: Point, b: Point, c: Point): number {
   const ba = { x: a.x - b.x, y: a.y - b.y };
@@ -262,7 +258,7 @@ function checkG(lm: Point[], f: FS): number {
   return score / 5.5;
 }
 
-function checkI(lm: Point[], f: FS): number {
+function checkI(_lm: Point[], f: FS): number {
   // Pinky up only, all others curled
   if (!f.pinky) return 0;
   if (f.index || f.middle || f.ring) return 0;

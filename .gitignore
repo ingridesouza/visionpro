@@ -17,8 +17,9 @@ env/
 # MediaPipe model assets
 backend/models/assets/
 
-# Claude Code
-.claude/
+# Claude Code — keep skills, ignore local settings
+.claude/settings.local.json
+.claude/settings.json
 
 # Node
 node_modules/
@@ -40,3 +41,9 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Test coverage
+htmlcov/
+.coverage
+coverage/
+frontend/coverage/

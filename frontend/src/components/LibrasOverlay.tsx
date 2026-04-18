@@ -1,3 +1,5 @@
+import { t } from "../lib/i18n";
+
 interface Props {
   currentLetter: string | null;
   confidence: number;
@@ -5,22 +7,33 @@ interface Props {
 }
 
 export function LibrasOverlay({ currentLetter, confidence, text }: Props) {
+  const confPercent = Math.round(confidence * 100);
+
   return (
-    <div className="libras-overlay">
+    <div
+      className="libras-overlay"
+      role="status"
+      aria-live="polite"
+      aria-label={
+        currentLetter
+          ? `Libras: ${currentLetter}, ${confPercent}%`
+          : t("libras.waiting")
+      }
+    >
       {currentLetter ? (
         <>
-          <span className="libras-letter">{currentLetter}</span>
-          <span className="libras-confidence">
-            {Math.round(confidence * 100)}%
+          <span className="libras-letter" aria-hidden="true">{currentLetter}</span>
+          <span className="libras-confidence" aria-hidden="true">
+            {confPercent}%
           </span>
         </>
       ) : (
-        <span className="libras-waiting">Mostre uma letra...</span>
+        <span className="libras-waiting">{t("libras.waiting")}</span>
       )}
       {text && (
         <>
-          <span className="libras-separator" />
-          <span className="libras-text">{text}</span>
+          <span className="libras-separator" aria-hidden="true" />
+          <span className="libras-text" aria-label={`Texto: ${text}`}>{text}</span>
         </>
       )}
     </div>

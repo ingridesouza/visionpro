@@ -1,5 +1,6 @@
+import contextlib
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 from deepface import DeepFace
@@ -11,10 +12,10 @@ class EmotionDetector:
     def __init__(self, detector_backend: str = "opencv"):
         self.detector_backend = detector_backend
 
-    def warm_up(self):
+    def warm_up(self) -> None:
         """Force model download and loading on startup."""
         dummy = np.zeros((100, 100, 3), dtype=np.uint8)
-        try:
+        with contextlib.suppress(Exception):
             DeepFace.analyze(
                 dummy,
                 actions=["emotion"],
@@ -22,10 +23,8 @@ class EmotionDetector:
                 enforce_detection=False,
                 silent=True,
             )
-        except Exception:
-            pass
 
-    def detect_emotion(self, frame: np.ndarray) -> Optional[Dict[str, Any]]:
+    def detect_emotion(self, frame: np.ndarray) -> dict[str, Any] | None:
         """Analyze a single frame for emotion."""
         try:
             results = DeepFace.analyze(
@@ -51,6 +50,6 @@ class EmotionDetector:
                     "face_region": region,
                 }
         except Exception as e:
-            logger.error(f"Emotion detection failed: {e}", exc_info=True)
+            logger.error("Emotion detection failed: %s", e, exc_info=True)
             return None
         return None

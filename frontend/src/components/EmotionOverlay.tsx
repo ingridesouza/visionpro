@@ -1,5 +1,6 @@
 import type { EmotionResult } from "../types/emotion";
 import { EMOTION_CONFIG } from "../constants/emotions";
+import { t } from "../lib/i18n";
 
 interface Props {
   result: EmotionResult;
@@ -8,7 +9,9 @@ interface Props {
 export function EmotionOverlay({ result }: Props) {
   if (!result.face_detected || !result.emotion) {
     return (
-      <div className="emotion-overlay no-face">Nenhum rosto detectado</div>
+      <div className="emotion-overlay no-face" role="status" aria-live="polite">
+        {t("emotion.no_face")}
+      </div>
     );
   }
 
@@ -16,15 +19,25 @@ export function EmotionOverlay({ result }: Props) {
   const confidence = result.confidence
     ? Math.round(result.confidence * 100)
     : 0;
+  const emotionLabel = t(`emotion.${result.emotion}`) || config.label;
 
   return (
-    <div className="emotion-overlay">
-      <span className="emotion-emoji">{config.emoji}</span>
+    <div
+      className="emotion-overlay"
+      role="status"
+      aria-live="polite"
+      aria-label={`${emotionLabel} ${confidence}%`}
+    >
+      <span className="emotion-emoji" aria-hidden="true">{config.emoji}</span>
       <span className="emotion-label" style={{ color: config.color }}>
-        {config.label}
+        {emotionLabel}
       </span>
-      <span className="emotion-confidence">{confidence}%</span>
-      <span className="processing-time">{result.processing_time_ms}ms</span>
+      <span className="emotion-confidence" aria-label={`${confidence}% confianca`}>
+        {confidence}%
+      </span>
+      <span className="processing-time" aria-hidden="true">
+        {result.processing_time_ms}ms
+      </span>
     </div>
   );
 }
