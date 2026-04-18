@@ -1,5 +1,5 @@
 # Core
-fastapi==0.115.*
+fastapi==0.136.*
 uvicorn[standard]==0.34.*
 websockets==14.*
 pydantic==2.*
