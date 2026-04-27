@@ -8,7 +8,7 @@ python-dotenv==1.*
 
 # Computer Vision / ML
 deepface==0.0.93
-tf-keras>=2.16
+tf-keras>=2.21.0
 opencv-python-headless==4.10.*
 mediapipe==0.10.*
 numpy>=1.26
